@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FC25 Guri Pro - Elite Edition</title>
+    <style>
+        :root { --gold: #f3ad0e; --dark: #05070a; --panel: #11151f; --accent: #1e2533; --green: #27ae60; --red: #e74c3c; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        
+        /* Navegação */
+        .tabs { display: flex; gap: 5px; width: 100%; max-width: 600px; position: sticky; top: 0; z-index: 100; background: var(--dark); padding: 10px 0; }
+        .tab-btn { background: var(--panel); color: white; border: 1px solid #333; padding: 12px 10px; cursor: pointer; border-radius: 8px; font-weight: bold; font-size: 0.75em; flex: 1; text-align: center; }
+        .tab-btn.active { background: var(--gold); color: black; border-color: var(--gold); }
+
+        .content-section { display: none; width: 100%; max-width: 600px; flex-direction: column; align-items: center; }
+        .content-section.active { display: flex; }
+
+        /* Estilos Gerais */
+        .card { background: var(--panel); border-radius: 12px; width: 100%; border: 1px solid #333; margin-bottom: 20px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .config-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+        input, select { background: #000; border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; width: 100%; font-size: 16px; outline: none; }
+
+        /* Tabela */
+        .table-wrapper { width: 100%; overflow-x: auto; border-radius: 10px; border: 1px solid #333; }
+        table { border-collapse: collapse; width: 100%; background: #0d1117; }
+        th, td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #222; font-size: 0.85em; }
+        th { background: var(--accent); color: var(--gold); text-transform: uppercase; font-size: 0.7em; }
+        
+        .logo-img { width: 25px; height: 25px; object-fit: contain; vertical-align: middle; }
+        .logo-mata { width: 30px; height: 30px; object-fit: contain; vertical-align: middle; margin: 0 8px; }
+
+        /* Placares sem setas */
+        .score-input { 
+            width: 50px !important; 
+            height: 45px; 
+            text-align: center; 
+            color: var(--gold); 
+            font-weight: bold; 
+            font-size: 1.4em; 
+            background: #000; 
+            border: 1px solid #444; 
+            border-radius: 8px;
+            -moz-appearance: textfield;
+        }
+        .score-input::-webkit-outer-spin-button, .score-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        /* Jogos */
+        .jogos-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 15px; }
+        .jogo { background: var(--panel); padding: 15px; border-radius: 12px; border: 1px solid #333; display: flex; flex-direction: column; gap: 10px; }
+        .match-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .jogo.finalizado { border-color: var(--green); background: #0a1f14; }
+        .team-display { flex: 1; display: flex; align-items: center; font-size: 0.85em; font-weight: bold; }
+        .flex-end { justify-content: flex-end; text-align: right; }
+
+        /* Botões */
+        .btn-main { background: var(--gold); color: black; border: none; padding: 18px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1em; margin-top: 10px; text-transform: uppercase; }
+        .btn-ok { background: var(--green); border: none; color: white; padding: 12px; border-radius: 8px; flex: 1; font-weight: bold; }
+        .btn-undo { background: var(--red); border: none; color: white; padding: 12px; border-radius: 8px; flex: 1; font-weight: bold; display: none; }
+
+        /* Hall */
+        .hall-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; border-bottom: 1px solid #333; }
+        .hall-info { display: flex; flex-direction: column; flex: 1; margin-left: 15px; }
+
+        /* Tela Campeão */
+        .campeao-box { text-align: center; padding: 60px 20px; border: 4px solid var(--gold); border-radius: 20px; width: 100%; background: radial-gradient(circle, #1a1a1a 0%, #000 100%); position: relative; overflow: hidden; }
+        .timer-bar { position: absolute; bottom: 0; left: 0; height: 5px; background: var(--gold); width: 100%; transition: width 10s linear; }
+        #countdown { font-size: 0.8em; color: var(--gold); margin-top: 15px; opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+    <div class="tabs">
+        <button class="tab-btn active" id="tab-grupo" onclick="openTab('aba-grupo')">GRUPOS</button>
+        <button class="tab-btn" id="tab-matamata" onclick="openTab('aba-matamata')">MATA-MATA</button>
+        <button class="tab-btn" id="tab-hall" onclick="openTab('aba-hall')">🎖️ HALL</button>
+    </div>
+
+    <div id="aba-grupo" class="content-section active">
+        <div class="card">
+            <h3 style="margin: 0 0 15px 0; text-align: center; color: var(--gold);">TORNEIO DOS GURIS</h3>
+            <div id="lista-config"></div>
+            <button class="btn-main" onclick="iniciarCampeonato()">INICIAR TORNEIO</button>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Pos</th><th style="text-align:left; padding-left:10px;">Equipe</th><th>P</th><th>V</th><th>GP</th><th>SG</th></tr></thead>
+                <tbody id="corpo-tabela"></tbody>
+            </table>
+        </div>
+        <div class="jogos-grid" id="container-jogos"></div>
+    </div>
+
+    <div id="aba-matamata" class="content-section">
+        <div class="card">
+            <h2 style="color:var(--gold); text-align:center; font-size: 1.2em;">SEMIFINAIS</h2>
+            <div id="semi-container"></div>
+            <hr style="border:0; border-top:1px solid #333; margin:30px 0;">
+            <h2 style="color:var(--gold); text-align:center; font-size: 1.2em;">GRANDE FINAL</h2>
+            <div id="final-container"></div>
+        </div>
+    </div>
+
+    <div id="aba-hall" class="content-section">
+        <div class="card" style="padding:0">
+            <h2 style="color:var(--gold); text-align:center; padding:15px;">🎖️ GALERIA DE CAMPEÕES</h2>
+            <div id="lista-hall"></div>
+            <div style="padding:15px"><button class="btn-main" style="background:#222; color:#888;" onclick="limparHistorico()">LIMPAR TUDO</button></div>
+        </div>
+    </div>
+
+    <div id="aba-vencedor" class="content-section">
+        <div class="campeao-box">
+            <div id="img-vencedor"></div>
+            <h1 id="nome-campeao" style="color: var(--gold); margin: 15px 0; font-size: 2.5em; text-shadow: 0 0 10px rgba(243,173,14,0.5);">---</h1>
+            <p style="font-weight: bold; letter-spacing: 2px;">VENCEDOR SUPREMO</p>
+            <div id="countdown">Redirecionando para o Hall em 10s...</div>
+            <div class="timer-bar" id="bar"></div>
+        </div>
+    </div>
+
+    <script>
+        const timesFC25 = {
+            "Real Madrid": "541", "Manchester City": "50", "Liverpool": "40", "Barcelona": "529", "Bayern Munich": "157", 
+            "Arsenal": "42", "Inter Milan": "505", "Bayer Leverkusen": "168", "PSG": "85", "Atletico Madrid": "530", 
+            "Borussia Dortmund": "165", "Juventus": "496", "AC Milan": "489", "Chelsea": "49", "França": "2", 
+            "Argentina": "26", "Inglaterra": "10", "Espanha": "5", "Portugal": "27", "Alemanha": "9", 
+            "Holanda": "11", "Itália": "7", "Brasil": "6", "Uruguai": "12", "Croácia": "3"
+        };
+
+        let duplas = JSON.parse(localStorage.getItem('guri_duplas')) || [
+            { nome: "Guri 1", time: "Real Madrid" }, { nome: "Guri 2", time: "Manchester City" },
+            { nome: "Guri 3", time: "França" }, { nome: "Guri 4", time: "Espanha" }, { nome: "Guri 5", time: "Portugal" }
+        ];
+
+        let stats = {}, classificados = [];
+
+        function openTab(id) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            const btnId = 'tab-' + (id.includes('grupo') ? 'grupo' : id.includes('matamata') ? 'matamata' : 'hall');
+            document.getElementById(btnId)?.classList.add('active');
+            if(id === 'aba-matamata') prepararMataMata();
+            if(id === 'aba-hall') renderHall();
+        }
+
+        function renderConfig() {
+            document.getElementById('lista-config').innerHTML = duplas.map((d, i) => `
+                <div class="config-row">
+                    <input type="text" id="nome-${i}" value="${d.nome}">
+                    <select id="time-${i}">${Object.keys(timesFC25).sort().map(t => `<option value="${t}" ${d.time==t?'selected':''}>${t}</option>`).join('')}</select>
+                </div>`).join('');
+        }
+
+        function iniciarCampeonato() {
+            stats = {};
+            for(let i=0; i<5; i++){
+                const n = document.getElementById(`nome-${i}`).value || `Guri ${i+1}`;
+                const t = document.getElementById(`time-${i}`).value;
+                duplas[i] = { nome: n, time: t };
+                stats[n] = { pontos: 0, v: 0, gp: 0, gc: 0, sg: 0, timeID: timesFC25[t] };
+            }
+            localStorage.setItem('guri_duplas', JSON.stringify(duplas));
+            gerarJogosGrupo(); atualizarTabela();
+        }
+
+        function gerarJogosGrupo() {
+            let html = '';
+            for (let i = 0; i < 5; i++) {
+                for (let j = i + 1; j < 5; j++) {
+                    html += `<div class="jogo" id="jg-${i}-${j}">
+                        <div class="match-row">
+                            <div class="team-display flex-end">${duplas[i].nome} <img class="logo-img" style="margin-left:8px" src="https://media.api-sports.io/football/teams/${timesFC25[duplas[i].time]}.png"></div>
+                            <input type="number" inputmode="numeric" min="0" class="score-input" value="0" id="g1-${i}-${j}">
+                            <span>X</span>
+                            <input type="number" inputmode="numeric" min="0" class="score-input" value="0" id="g2-${i}-${j}">
+                            <div class="team-display"><img class="logo-img" style="margin-right:8px" src="https://media.api-sports.io/football/teams/${timesFC25[duplas[j].time]}.png"> ${duplas[j].nome}</div>
+                        </div>
+                        <div style="display:flex; gap:8px;"><button class="btn-ok" id="ok-${i}-${j}" onclick="lancar(${i},${j},true)">SALVAR</button><button class="btn-undo" id="un-${i}-${j}" onclick="lancar(${i},${j},false)">↩</button></div>
+                    </div>`;
+                }
+            }
+            document.getElementById('container-jogos').innerHTML = html;
+        }
+
+        function lancar(i, j, somar) {
+            const n1 = duplas[i].nome, n2 = duplas[j].nome;
+            const g1 = Math.max(0, parseInt(document.getElementById(`g1-${i}-${j}`).value) || 0);
+            const g2 = Math.max(0, parseInt(document.getElementById(`g2-${i}-${j}`).value) || 0);
+            const mult = somar ? 1 : -1;
+            stats[n1].gp += (g1*mult); stats[n1].gc += (g2*mult);
+            stats[n2].gp += (g2*mult); stats[n2].gc += (g1*mult);
+            if (g1 > g2) { stats[n1].pontos += (3*mult); stats[n1].v += mult; }
+            else if (g1 < g2) { stats[n2].pontos += (3*mult); stats[n2].v += mult; }
+            else { stats[n1].pontos += mult; stats[n2].pontos += mult; }
+            stats[n1].sg = stats[n1].gp - stats[n1].gc; stats[n2].sg = stats[n2].gp - stats[n2].gc;
+            document.getElementById(`jg-${i}-${j}`).classList.toggle('finalizado', somar);
+            document.getElementById(`ok-${i}-${j}`).style.display = somar ? 'none' : 'block';
+            document.getElementById(`un-${i}-${j}`).style.display = somar ? 'block' : 'none';
+            atualizarTabela();
+        }
+
+        function atualizarTabela() {
+            classificados = Object.keys(stats).map(n => ({ n, ...stats[n] })).sort((a,b) => b.pontos - a.pontos || b.sg - a.sg);
+            document.getElementById('corpo-tabela').innerHTML = classificados.map((t, i) => `
+                <tr><td>${i+1}º</td><td style="text-align:left; padding-left:10px;"><img class="logo-img" src="https://media.api-sports.io/football/teams/${t.timeID}.png"> ${t.n}</td>
+                <td style="color:var(--gold); font-weight:bold">${t.pontos}</td><td>${t.v}</td><td>${t.gp}</td><td>${t.sg}</td></tr>`).join('');
+        }
+
+        function prepararMataMata() {
+            if(classificados.length < 4) { document.getElementById('semi-container').innerHTML = "<p style='text-align:center; color:#555;'>Aguardando grupos...</p>"; return; }
+            const s = classificados;
+            document.getElementById('semi-container').innerHTML = [0,1].map(i => {
+                const idx1 = i === 0 ? 0 : 1, idx2 = i === 0 ? 3 : 2;
+                return `<div class="jogo"><div class="match-row">
+                    <div class="team-display flex-end">${s[idx1].n} <img class="logo-mata" src="https://media.api-sports.io/football/teams/${s[idx1].timeID}.png"></div>
+                    <input type="number" inputmode="numeric" min="0" class="score-input" id="gs${i}-1"> X <input type="number" inputmode="numeric" min="0" class="score-input" id="gs${i}-2">
+                    <div class="team-display"><img class="logo-mata" src="https://media.api-sports.io/football/teams/${s[idx2].timeID}.png"> ${s[idx2].n}</div>
+                </div><button class="btn-ok" id="oks${i}" onclick="venceuSemi(${i}, ${idx1}, ${idx2}, true)">CONFIRMAR</button><button class="btn-undo" id="uns${i}" onclick="venceuSemi(${i}, ${idx1}, ${idx2}, false)">↩</button></div>`;
+            }).join('');
+        }
+
+        function venceuSemi(num, idx1, idx2, somar) {
+            const g1 = Math.max(0, parseInt(document.getElementById(`gs${num}-1`).value) || 0);
+            const g2 = Math.max(0, parseInt(document.getElementById(`gs${num}-2`).value) || 0);
+            const vencedor = g1 > g2 ? classificados[idx1] : classificados[idx2];
+            document.getElementById(`oks${num}`).style.display = somar ? 'none' : 'block';
+            document.getElementById(`uns${num}`).style.display = somar ? 'block' : 'none';
+            if(somar) {
+                if(!document.getElementById('final-jogo')) {
+                    document.getElementById('final-container').innerHTML = `<div class="jogo" id="final-jogo">
+                        <div class="match-row">
+                            <div id="f-t0-box" class="team-display flex-end"></div>
+                            <input type="number" inputmode="numeric" min="0" class="score-input" id="fg1"> X <input type="number" inputmode="numeric" min="0" class="score-input" id="fg2">
+                            <div id="f-t1-box" class="team-display"></div>
+                        </div><button class="btn-main" onclick="coroar()">🏆 SALVAR CAMPEÃO</button></div>`;
+                }
+                document.getElementById(`f-t${num}-box`).innerHTML = `<span id="finalist-${num}" data-id="${vencedor.timeID}">${vencedor.n}</span> <img class="logo-mata" src="https://media.api-sports.io/football/teams/${vencedor.timeID}.png">`;
+                if(num === 1) document.getElementById(`f-t1-box`).innerHTML = `<img class="logo-mata" src="https://media.api-sports.io/football/teams/${vencedor.timeID}.png"> <span id="finalist-${num}" data-id="${vencedor.timeID}">${vencedor.n}</span>`;
+            }
+        }
+
+        function coroar() {
+            const g1 = Math.max(0, parseInt(document.getElementById('fg1').value) || 0);
+            const g2 = Math.max(0, parseInt(document.getElementById('fg2').value) || 0);
+            const winIdx = g1 > g2 ? '0' : '1';
+            const vNome = document.getElementById(`finalist-${winIdx}`).innerText;
+            const vID = document.getElementById(`finalist-${winIdx}`).dataset.id;
+            
+            // Salvar no Hall
+            const historico = JSON.parse(localStorage.getItem('guri_hall')) || [];
+            historico.unshift({ nome: vNome, timeID: vID, data: new Date().toLocaleDateString('pt-BR') });
+            localStorage.setItem('guri_hall', JSON.stringify(historico));
+
+            // Preparar tela de vitória
+            document.getElementById('nome-campeao').innerText = vNome;
+            document.getElementById('img-vencedor').innerHTML = `<img src="https://media.api-sports.io/football/teams/${vID}.png" style="width:140px; filter: drop-shadow(0 0 20px #f3ad0e);">`;
+            openTab('aba-vencedor');
+
+            // Iniciar Timer de 10 segundos
+            let timeLeft = 10;
+            const bar = document.getElementById('bar');
+            const countdownText = document.getElementById('countdown');
+            
+            bar.style.width = '100%';
+            setTimeout(() => bar.style.width = '0%', 100);
+
+            const timerInterval = setInterval(() => {
+                timeLeft--;
+                countdownText.innerText = `Redirecionando para o Hall em ${timeLeft}s...`;
+                if(timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    openTab('aba-hall');
+                }
+            }, 1000);
+        }
+
+        function renderHall() {
+            const historico = JSON.parse(localStorage.getItem('guri_hall')) || [];
+            const container = document.getElementById('lista-hall');
+            if(historico.length === 0) { container.innerHTML = '<p style="text-align:center; color:#555; padding:20px;">Vazio.</p>'; return; }
+            container.innerHTML = historico.map(h => `
+                <div class="hall-item">
+                    <img src="https://media.api-sports.io/football/teams/${h.timeID}.png" style="width:45px">
+                    <div class="hall-info"><b style="color:var(--gold); font-size:1.1em;">${h.nome}</b><span style="font-size:0.7em; color:#888;">Campeão em ${h.data}</span></div>
+                    <div style="font-size:1.5em">🏆</div>
+                </div>`).join('');
+        }
+
+        function limparHistorico() { if(confirm("Apagar tudo?")) { localStorage.removeItem('guri_hall'); renderHall(); } }
+        window.onload = () => { renderConfig(); iniciarCampeonato(); };
+    </script>
+</body>
+</html>

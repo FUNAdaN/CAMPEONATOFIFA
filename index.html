@@ -3,85 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FC25 Guri Pro - Elite Realtime</title>
+    <title>FC25 Guri Pro - Ultra History</title>
     <style>
         :root { --gold: #f3ad0e; --dark: #05070a; --panel: #11151f; --accent: #1e2533; --green: #27ae60; --red: #e74c3c; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--dark); color: white; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
         
+        /* Tabs */
         .tabs { display: flex; gap: 5px; width: 100%; max-width: 600px; position: sticky; top: 0; z-index: 100; background: var(--dark); padding: 10px 0; }
         .tab-btn { background: var(--panel); color: #888; border: 1px solid #333; padding: 12px 5px; cursor: pointer; border-radius: 8px; font-weight: bold; font-size: 0.7em; flex: 1; text-align: center; }
         .tab-btn.active { background: var(--gold); color: black; border-color: var(--gold); }
 
-        .content-section { display: none; width: 100%; max-width: 600px; flex-direction: column; align-items: center; }
-        .content-section.active { display: flex; }
+        .content-section { display: none; width: 100%; max-width: 600px; }
+        .content-section.active { display: block; }
 
-        .card { background: var(--panel); border-radius: 12px; width: 100%; border: 1px solid #333; margin-bottom: 20px; padding: 15px; }
-        .table-wrapper { width: 100%; overflow-x: auto; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px;}
-        table { border-collapse: collapse; width: 100%; background: #0d1117; }
-        th, td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #222; font-size: 0.75em; }
-        th { background: var(--accent); color: var(--gold); text-transform: uppercase; }
-        
-        .logo-img { width: 20px; height: 20px; object-fit: contain; vertical-align: middle; }
-        .logo-mata { width: 35px; height: 35px; object-fit: contain; }
-        .score-input { width: 45px !important; height: 38px; text-align: center; color: var(--gold); font-weight: bold; font-size: 1.1em; background: #000; border: 1px solid #444; border-radius: 6px; }
-        
-        .jogos-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-        .jogo { background: var(--panel); padding: 12px; border-radius: 12px; border: 1px solid #333; position: relative; }
-        .jogo.finalizado { border-left: 4px solid var(--green); opacity: 0.8; }
-        .match-row { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
-        .team-display { flex: 1; display: flex; align-items: center; font-size: 0.85em; font-weight: bold; gap: 8px; overflow: hidden; }
-        .flex-end { justify-content: flex-end; text-align: right; }
+        /* Estilos de Cartão e Tabela */
+        .card { background: var(--panel); border-radius: 12px; border: 1px solid #333; margin-bottom: 15px; padding: 15px; }
+        table { width: 100%; border-collapse: collapse; background: #0d1117; border-radius: 8px; overflow: hidden; font-size: 0.8em; }
+        th { background: var(--accent); color: var(--gold); padding: 10px; }
+        td { padding: 8px; text-align: center; border-bottom: 1px solid #222; }
 
-        .jogo-badge { position: absolute; top: -8px; left: 10px; background: var(--accent); color: var(--gold); font-size: 0.6em; padding: 2px 8px; border-radius: 4px; border: 1px solid #333; }
-
-        .fase-titulo { color: var(--gold); text-align: center; font-size: 0.9em; margin: 25px 0 10px 0; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #333; padding-bottom: 5px; width: 100%; font-weight: bold;}
-        .btn-ok { background: var(--green); border: none; color: white; padding: 10px; border-radius: 6px; width: 100%; font-weight: bold; margin-top: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.75em; }
-        .btn-danger { background: var(--red); color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 20px; }
+        .logo-img { width: 20px; height: 20px; vertical-align: middle; margin-right: 5px; }
+        .score-input { width: 45px; height: 35px; text-align: center; color: var(--gold); font-weight: bold; background: #000; border: 1px solid #444; border-radius: 6px; }
         
-        .config-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 8px; margin-bottom: 10px; }
-        input, select { background: #000; border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; width: 100%; }
+        .jogo { background: var(--panel); padding: 12px; border-radius: 12px; border: 1px solid #333; margin-bottom: 10px; }
+        .match-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .team-name { flex: 1; font-weight: bold; font-size: 0.85em; }
+        .btn-ok { background: var(--green); border: none; color: white; padding: 10px; border-radius: 6px; width: 100%; font-weight: bold; margin-top: 8px; cursor: pointer; }
+
+        /* Modal Histórico */
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:var(--dark); z-index:1000; overflow-y:auto; padding:15px; }
+        .history-fase { color: var(--gold); border-bottom: 1px solid #444; margin: 20px 0 10px 0; padding-bottom: 5px; font-size: 0.9em; text-transform: uppercase; }
+        .badge-history { background: #1e2533; border: 1px solid var(--gold); color: var(--gold); padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 0.7em; margin-top: 10px;}
     </style>
 </head>
 <body>
 
     <div class="tabs">
-        <button class="tab-btn active" id="btn-aba-grupo" onclick="window.openTab('aba-grupo')">TABELA</button>
-        <button class="tab-btn" id="btn-aba-matamata" onclick="window.openTab('aba-matamata')">MATA-MATA</button>
-        <button class="tab-btn" id="btn-aba-hall" onclick="window.openTab('aba-hall')">🎖️</button>
-        <button class="tab-btn" id="btn-aba-config" onclick="window.openTab('aba-config')">⚙️</button>
+        <button class="tab-btn active" onclick="window.openTab('aba-grupo')">TABELA</button>
+        <button class="tab-btn" onclick="window.openTab('aba-matamata')">MATA-MATA</button>
+        <button class="tab-btn" onclick="window.openTab('aba-hall')">🎖️ HALL</button>
+        <button class="tab-btn" onclick="window.openTab('aba-config')">⚙️</button>
     </div>
 
     <div id="aba-grupo" class="content-section active">
-        <div class="table-wrapper">
-            <table>
-                <thead><tr><th>Pos</th><th style="text-align:left; padding-left:10px;">Guri</th><th>P</th><th>J</th><th>V</th><th>SG</th></tr></thead>
-                <tbody id="corpo-tabela"></tbody>
-            </table>
-        </div>
-        <div class="jogos-grid" id="container-jogos"></div>
+        <div id="tabela-container"></div>
+        <div id="jogos-container"></div>
     </div>
 
     <div id="aba-matamata" class="content-section">
-        <div id="mata-mata-container" style="width: 100%;"></div>
+        <div id="mata-mata-container"></div>
     </div>
 
-    <div id="aba-hall" class="content-section"><div class="card" id="lista-hall"></div></div>
+    <div id="aba-hall" class="content-section">
+        <div id="lista-hall"></div>
+    </div>
 
     <div id="aba-config" class="content-section">
         <div class="card">
-            <h3 style="text-align: center; color: var(--gold);">NOVO CAMPEONATO</h3>
-            <select id="qtd-times" onchange="window.renderCamposConfig()"></select>
-            <div id="lista-config" style="margin-top:15px"></div>
-            <button class="btn-danger" id="btn-iniciar">🔥 GERAR TABELA E INICIAR</button>
+            <h3>NOVO TORNEIO</h3>
+            <label>Nº de Times:</label>
+            <input type="number" id="qtd-times" value="8" min="2" style="width:100%; padding:10px; margin-bottom:10px; background:#000; color:#fff; border:1px solid #444;">
+            <div id="campos-times"></div>
+            <button onclick="window.iniciarNovo()" style="background:var(--red); width:100%; padding:15px; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">LIMPAR E INICIAR</button>
         </div>
     </div>
 
-    <div id="aba-vencedor" class="content-section">
-        <div style="text-align:center; padding:60px 20px; border:4px solid var(--gold); border-radius:20px; background:#000; width:100%">
-            <div id="img-vencedor"></div>
-            <h1 id="nome-campeao" style="color:var(--gold); font-size:2.5em; margin:10px 0;">---</h1>
-            <p style="letter-spacing:3px">🏆 CAMPEÃO DO TORNEIO 🏆</p>
+    <div id="modal-historico" class="modal">
+        <div style="max-width:600px; margin:auto">
+            <button onclick="this.parentElement.parentElement.style.display='none'" style="background:var(--red); color:white; padding:10px; border:none; border-radius:5px; margin-bottom:20px;">← VOLTAR AO HALL</button>
+            <div id="detalhe-historia"></div>
         </div>
     </div>
 
@@ -89,222 +80,136 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, update, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // CONFIGURAÇÃO DO FIREBASE
-        const firebaseConfig = {
-            apiKey: "SUA_API_KEY",
-            databaseURL: "https://torneiodosguri-default-rtdb.firebaseio.com",
-            projectId: "torneiodosguri"
-        };
-
+        // CONFIGURAÇÃO DO FIREBASE (USE A SUA)
+        const firebaseConfig = { databaseURL: "https://torneiodosguri-default-rtdb.firebaseio.com" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const timesFC25 = { "Real Madrid": "541", "Man. City": "50", "Liverpool": "40", "Barcelona": "529", "Bayern": "157", "Arsenal": "42", "Inter": "505", "Leverkusen": "168", "PSG": "85", "Atlético": "530", "Dortmund": "165", "Juventus": "496", "Milan": "489", "Chelsea": "49", "Benfica": "190", "Porto": "192", "Napoli": "492", "Roma": "497", "Tottenham": "47", "França": "2", "Argentina": "26", "Inglaterra": "10", "Espanha": "5", "Portugal": "27", "Alemanha": "9", "Brasil": "6" };
-        
-        let localData = { duplas: [], placares: {}, ordemJogos: [] };
+
+        let currentData = null;
+        const timesFC25 = { "Real Madrid": "541", "Man. City": "50", "Liverpool": "40", "Barcelona": "529", "Bayern": "157", "Arsenal": "42", "Inter": "505", "Bayer": "168", "PSG": "85", "França": "2", "Argentina": "26", "Brasil": "6" };
 
         window.openTab = (id) => {
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', false));
             document.getElementById(id).classList.add('active');
-            document.getElementById('btn-' + id).classList.add('active');
         };
 
-        const selQtd = document.getElementById('qtd-times');
-        for(let i=2; i<=20; i++) {
-            let opt = document.createElement('option'); opt.value = i; opt.text = i + " Participantes";
-            if(i === 6) opt.selected = true;
-            selQtd.appendChild(opt);
-        }
-
-        window.renderCamposConfig = () => {
-            const qtd = parseInt(selQtd.value);
-            const container = document.getElementById('lista-config');
-            container.innerHTML = "";
-            for(let i=0; i<qtd; i++) {
-                container.innerHTML += `<div class="config-row"><input type="text" id="nome-${i}" placeholder="Guri ${i+1}"><select id="time-${i}">${Object.keys(timesFC25).sort().map(t => `<option value="${t}">${t}</option>`).join('')}</select></div>`;
-            }
-        };
-        window.renderCamposConfig();
-
-        // ALGORITMO DE SORTEIO INTELIGENTE (ANTI-REPETIÇÃO)
-        function gerarTabelaInteligente(duplas) {
-            let todosConfrontos = [];
-            for (let i = 0; i < duplas.length; i++) {
-                for (let j = i + 1; j < duplas.length; j++) {
-                    todosConfrontos.push({ i, j, key: `jg_${i}_${j}` });
-                }
-            }
-
-            // Embaralha inicialmente
-            todosConfrontos.sort(() => Math.random() - 0.5);
-
-            let tabelaFinal = [];
-            let tentativas = 0;
-
-            while (todosConfrontos.length > 0 && tentativas < 100) {
-                let jogoEncontrado = false;
-                for (let idx = 0; idx < todosConfrontos.length; idx++) {
-                    let c = todosConfrontos[idx];
-                    
-                    if (tabelaFinal.length > 0) {
-                        let ultimo = tabelaFinal[tabelaFinal.length - 1];
-                        // Se nenhum dos jogadores do jogo atual jogou no anterior
-                        if (c.i !== ultimo.i && c.i !== ultimo.j && c.j !== ultimo.i && c.j !== ultimo.j) {
-                            tabelaFinal.push(todosConfrontos.splice(idx, 1)[0]);
-                            jogoEncontrado = true;
-                            break;
-                        }
-                    } else {
-                        tabelaFinal.push(todosConfrontos.splice(idx, 1)[0]);
-                        jogoEncontrado = true;
-                        break;
-                    }
-                }
-
-                if (!jogoEncontrado) {
-                    // Se travou, pega o primeiro da lista mesmo (matematicamente inevitável em alguns casos)
-                    tabelaFinal.push(todosConfrontos.splice(0, 1)[0]);
-                }
-                tentativas++;
-            }
-            return tabelaFinal;
-        }
-
-        document.getElementById('btn-iniciar').onclick = () => {
-            if(!confirm("Isso gerará uma nova tabela aleatória. Continuar?")) return;
-            const qtd = parseInt(selQtd.value);
-            const duplas = [];
-            for(let i=0; i<qtd; i++){
-                const t = document.getElementById(`time-${i}`).value;
-                duplas.push({ nome: document.getElementById(`nome-${i}`).value || `Guri ${i+1}`, timeID: timesFC25[t] });
-            }
-            const ordem = gerarTabelaInteligente(duplas);
-            set(ref(db, 'campeonato/'), { duplas, placares: {}, ordemJogos: ordem });
-            window.openTab('aba-grupo');
-        };
-
-        onValue(ref(db, 'campeonato/'), (snap) => {
-            const data = snap.val();
-            if(!data) return;
-            localData = data;
-            atualizarTudo();
-        });
-
-        function atualizarTudo() {
-            const { duplas, placares = {}, ordemJogos = [] } = localData;
-            const stats = {};
-            duplas.forEach(d => stats[d.nome] = { pontos: 0, v: 0, gp: 0, gc: 0, sg: 0, j: 0, timeID: d.timeID });
-
-            ordemJogos.forEach(jogo => {
-                const p = placares[jogo.key];
+        // Lógica de Tabela
+        function calcularTabela(duplas, placares, ordem) {
+            let stats = duplas.map(d => ({ ...d, p: 0, j: 0, v: 0, gp: 0, gc: 0, sg: 0 }));
+            ordem.forEach(o => {
+                const p = placares[o.key];
                 if(p && p.f) {
-                    const n1 = duplas[jogo.i].nome, n2 = duplas[jogo.j].nome;
-                    stats[n1].j++; stats[n2].j++;
-                    stats[n1].gp += p.g1; stats[n1].gc += p.g2;
-                    stats[n2].gp += p.g2; stats[n2].gc += p.g1;
-                    if(p.g1 > p.g2) { stats[n1].pontos += 3; stats[n1].v++; }
-                    else if(p.g2 > p.g1) { stats[n2].pontos += 3; stats[n2].v++; }
-                    else { stats[n1].pontos++; stats[n2].pontos++; }
-                    stats[n1].sg = stats[n1].gp - stats[n1].gc;
-                    stats[n2].sg = stats[n2].gp - stats[n2].gc;
+                    const t1 = stats[o.i], t2 = stats[o.j];
+                    t1.j++; t2.j++; t1.gp += p.g1; t1.gc += p.g2; t2.gp += p.g2; t2.gc += p.g1;
+                    if(p.g1 > p.g2) { t1.p += 3; t1.v++; } else if(p.g2 > p.g1) { t2.p += 3; t2.v++; } else { t1.p++; t2.p++; }
+                    t1.sg = t1.gp - t1.gc; t2.sg = t2.gp - t2.gc;
                 }
             });
-
-            const ordenados = Object.keys(stats).map(n => ({ n, ...stats[n] })).sort((a,b) => b.pontos - a.pontos || b.sg - a.sg);
-            document.getElementById('corpo-tabela').innerHTML = ordenados.map((t, i) => `
-                <tr><td>${i+1}º</td><td style="text-align:left; padding-left:10px;"><img class="logo-img" src="https://media.api-sports.io/football/teams/${t.timeID}.png"> ${t.n}</td>
-                <td style="color:var(--gold); font-weight:bold">${t.pontos}</td><td>${t.j}</td><td>${t.v}</td><td>${t.sg}</td></tr>`).join('');
-
-            document.getElementById('container-jogos').innerHTML = ordemJogos.map((jogo, idx) => {
-                const p = placares[jogo.key] || { g1: 0, g2: 0, f: false };
-                const t1 = duplas[jogo.i], t2 = duplas[jogo.j];
-                return `
-                <div class="jogo ${p.f ? 'finalizado' : ''}">
-                    <div class="jogo-badge">PARTIDA ${idx + 1}</div>
-                    <div class="match-row" style="margin-top:10px">
-                        <div class="team-display flex-end">${t1.nome} <img class="logo-img" src="https://media.api-sports.io/football/teams/${t1.timeID}.png"></div>
-                        <input type="number" class="score-input" value="${p.g1}" id="i1-${jogo.key}"> X <input type="number" class="score-input" value="${p.g2}" id="i2-${jogo.key}">
-                        <div class="team-display"><img class="logo-img" src="https://media.api-sports.io/football/teams/${t2.timeID}.png"> ${t2.nome}</div>
-                    </div>
-                    <button class="btn-ok" style="${p.f ? 'background:#1e2533' : ''}" onclick="window.salvarP('${jogo.key}')">${p.f ? 'ATUALIZAR' : 'SALVAR PLACAR'}</button>
-                </div>`;
-            }).join('');
-            
-            renderMataMata(ordenados);
+            return stats.sort((a,b) => b.p - a.p || b.sg - a.sg);
         }
 
+        // Renderizadores
+        onValue(ref(db, 'campeonato/'), (snap) => {
+            const data = snap.val(); if(!data) return;
+            currentData = data;
+            const classificados = calcularTabela(data.duplas, data.placares || {}, data.ordemJogos || []);
+            
+            // Render Tabela
+            document.getElementById('tabela-container').innerHTML = `
+                <div class="card"><table><thead><tr><th>Pos</th><th style="text-align:left">Time</th><th>P</th><th>J</th><th>SG</th></tr></thead>
+                <tbody>${classificados.map((s,i) => `<tr><td>${i+1}º</td><td style="text-align:left">${s.nome}</td><td>${s.p}</td><td>${s.j}</td><td>${s.sg}</td></tr>`).join('')}</tbody></table></div>`;
+
+            // Render Jogos Fase de Grupo
+            document.getElementById('jogos-container').innerHTML = data.ordemJogos.map(o => {
+                const p = (data.placares || {})[o.key] || {g1:0, g2:0, f:false};
+                return `<div class="jogo"><div class="match-row"><span>${data.duplas[o.i].nome}</span> <input type="number" id="g1-${o.key}" value="${p.g1}" class="score-input"> X <input type="number" id="g2-${o.key}" value="${p.g2}" class="score-input"> <span>${data.duplas[o.j].nome}</span></div><button class="btn-ok" onclick="window.salvarP('${o.key}')">SALVAR</button></div>`;
+            }).join('');
+
+            renderMataMata(classificados, data.placares || {});
+        });
+
         window.salvarP = (key) => {
-            const g1 = parseInt(document.getElementById(`i1-${key}`).value) || 0;
-            const g2 = parseInt(document.getElementById(`i2-${key}`).value) || 0;
+            const g1 = parseInt(document.getElementById(`g1-${key}`).value) || 0;
+            const g2 = parseInt(document.getElementById(`g2-${key}`).value) || 0;
             update(ref(db, `campeonato/placares/${key}`), { g1, g2, f: true });
         };
 
-        function renderMataMata(classificados) {
+        function renderMataMata(classificados, placares) {
             const container = document.getElementById('mata-mata-container');
-            const total = classificados.length;
-            container.innerHTML = "";
-            const fases = [];
-            if (total > 16) fases.push({ nome: "Oitavas de Final", qtd: 8, prefix: "oitava" });
-            if (total > 8) fases.push({ nome: "Quartas de Final", qtd: 4, prefix: "quarta" });
-            fases.push({ nome: "Semifinais", qtd: 2, prefix: "semi" });
-            fases.push({ nome: "Grande Final", qtd: 1, prefix: "final" });
-
-            fases.forEach((fase, fIdx) => {
-                container.innerHTML += `<div class="fase-titulo">${fase.nome}</div>`;
-                for (let i = 0; i < fase.qtd; i++) {
-                    const key = `${fase.prefix}_${i}`;
-                    const p = localData.placares[key] || { t1: null, t2: null, g1: 0, g2: 0, f: false };
-                    
-                    if (fIdx === 0 && !p.t1 && classificados.length >= fase.qtd * 2) {
-                        p.t1 = { n: classificados[i].n, timeID: classificados[i].timeID };
-                        p.t2 = { n: classificados[fase.qtd*2-1-i].n, timeID: classificados[fase.qtd*2-1-i].timeID };
-                        update(ref(db, `campeonato/placares/${key}`), { t1: p.t1, t2: p.t2 });
-                    }
-
-                    container.innerHTML += `
-                        <div class="jogo ${p.f ? 'finalizado' : ''}">
-                            <div class="match-row">
-                                <div class="team-display flex-end">${p.t1?p.t1.n:'?'}<img class="logo-mata" src="${p.t1?'https://media.api-sports.io/football/teams/'+p.t1.timeID+'.png':''}"></div>
-                                <input type="number" class="score-input" id="g1-${key}" value="${p.g1}"> X <input type="number" class="score-input" id="g2-${key}" value="${p.g2}">
-                                <div class="team-display"><img class="logo-mata" src="${p.t2?'https://media.api-sports.io/football/teams/'+p.t2.timeID+'.png':''}">${p.t2?p.t2.n:'?'}</div>
-                            </div>
-                            <button class="btn-ok" onclick="window.avancar('${key}', '${fases[fIdx+1]?.prefix || 'campeao'}', ${i})">${p.f?'ATUALIZAR':'CONFIRMAR VITÓRIA'}</button>
-                        </div>`;
-                }
-            });
+            container.innerHTML = `<div class="history-fase">Grande Final</div>`;
+            const p = placares['final_0'] || { t1: classificados[0], t2: classificados[1], g1:0, g2:0, f:false };
+            container.innerHTML += `<div class="jogo"><div class="match-row"><b>${p.t1.nome}</b> <input type="number" id="f1-final" value="${p.g1}" class="score-input"> X <input type="number" id="f2-final" value="${p.g2}" class="score-input"> <b>${p.t2.nome}</b></div><button class="btn-ok" onclick="window.encerrar('${p.t1.nome}', '${p.t2.nome}')">FINALIZAR E ARQUIVAR</button></div>`;
         }
 
-        window.avancar = (key, proxFase, index) => {
-            const g1 = parseInt(document.getElementById(`g1-${key}`).value) || 0;
-            const g2 = parseInt(document.getElementById(`g2-${key}`).value) || 0;
-            if(g1 === g2) { alert("Empate não permitido no mata-mata!"); return; }
-            const matchData = localData.placares[key];
-            if(!matchData || !matchData.t1 || !matchData.t2) return;
+        window.encerrar = (n1, n2) => {
+            const g1 = parseInt(document.getElementById('f1-final').value);
+            const g2 = parseInt(document.getElementById('f2-final').value);
+            if(g1 === g2) return alert("Empate não permitido!");
             
-            const vencedor = g1 > g2 ? matchData.t1 : matchData.t2;
-            const updates = {};
-            updates[`campeonato/placares/${key}/g1`] = g1;
-            updates[`campeonato/placares/${key}/g2`] = g2;
-            updates[`campeonato/placares/${key}/f`] = true;
-
-            if (proxFase === 'campeao') {
-                update(ref(db), updates);
-                push(ref(db, 'hall/'), { nome: vencedor.n, timeID: vencedor.timeID, data: new Date().toLocaleDateString() });
-                document.getElementById('nome-campeao').innerText = vencedor.n;
-                document.getElementById('img-vencedor').innerHTML = `<img src="https://media.api-sports.io/football/teams/${vencedor.timeID}.png" style="width:120px">`;
-                window.openTab('aba-vencedor');
-            } else {
-                const proxIdx = Math.floor(index / 2);
-                const pos = index % 2 === 0 ? 't1' : 't2';
-                updates[`campeonato/placares/${proxFase}_${proxIdx}/${pos}`] = vencedor;
-                update(ref(db), updates);
-            }
+            const vencedor = g1 > g2 ? n1 : n2;
+            const snapshot = {
+                vencedor,
+                data: new Date().toLocaleString(),
+                tabelaSnapshot: calcularTabela(currentData.duplas, currentData.placares || {}, currentData.ordemJogos),
+                jogosSnapshot: currentData.ordemJogos.map(o => ({
+                    t1: currentData.duplas[o.i].nome,
+                    t2: currentData.duplas[o.j].nome,
+                    g1: currentData.placares[o.key]?.g1 || 0,
+                    g2: currentData.placares[o.key]?.g2 || 0
+                })),
+                final: { t1: n1, t2: n2, g1, g2 }
+            };
+            push(ref(db, 'hall/'), snapshot).then(() => alert("Campeonato Arquivado!"));
         };
 
+        // Lógica do Hall e Detalhes
         onValue(ref(db, 'hall/'), (snap) => {
             const data = snap.val() || {};
-            document.getElementById('lista-hall').innerHTML = "<h2 style='color:var(--gold); text-align:center;'>🎖️ HALL DA FAMA</h2>" + Object.values(data).reverse().map(h => `<div style="display:flex; align-items:center; justify-content:space-between; padding:12px; border-bottom:1px solid #333;"><img src="https://media.api-sports.io/football/teams/${h.timeID}.png" style="width:30px"><b>${h.nome}</b><small style="color:#888">${h.data}</small></div>`).join('');
+            document.getElementById('lista-hall').innerHTML = Object.entries(data).reverse().map(([id, h]) => `
+                <div class="card" style="text-align:center">
+                    <h2 style="color:var(--gold); margin:0">🏆 ${h.vencedor}</h2>
+                    <small>${h.data}</small><br>
+                    <button class="badge-history" onclick="window.verDetalhes('${id}')">📄 VER CAMPANHA COMPLETA</button>
+                </div>
+            `).join('');
+            window.historicoLocal = data;
         });
+
+        window.verDetalhes = (id) => {
+            const h = window.historicoLocal[id];
+            let html = `<h2 style="color:var(--gold)">Resumo da Edição</h2>`;
+            
+            html += `<div class="history-fase">Tabela Final</div><table><thead><tr><th>Pos</th><th>Guri</th><th>Pts</th><th>SG</th></tr></thead>`;
+            h.tabelaSnapshot.forEach((s, i) => {
+                html += `<tr><td>${i+1}º</td><td>${s.nome}</td><td>${s.p}</td><td>${s.sg}</td></tr>`;
+            });
+            html += `</table>`;
+
+            html += `<div class="history-fase">Resultados da Fase de Grupos</div>`;
+            h.jogosSnapshot.forEach(j => {
+                html += `<div class="jogo" style="font-size:0.8em; padding:8px">${j.t1} <b>${j.g1} x ${j.g2}</b> ${j.t2}</div>`;
+            });
+
+            html += `<div class="history-fase">A Grande Final</div>`;
+            html += `<div class="card" style="text-align:center; border: 2px solid var(--gold)">
+                        <b>${h.final.t1}</b> <span style="font-size:1.5em; margin:0 10px">${h.final.g1} x ${h.final.g2}</span> <b>${h.final.t2}</b>
+                        <div style="color:var(--gold); margin-top:10px">🏆 CAMPEÃO: ${h.vencedor}</div>
+                    </div>`;
+
+            document.getElementById('detalhe-historia').innerHTML = html;
+            document.getElementById('modal-historico').style.display = 'block';
+        };
+
+        window.iniciarNovo = () => {
+            if(!confirm("Isso apagará o campeonato ATUAL (mas o Hall fica salvo). Continuar?")) return;
+            const qtd = parseInt(document.getElementById('qtd-times').value);
+            const duplas = [];
+            for(let i=0; i<qtd; i++) duplas.push({ nome: `Guri ${i+1}`, timeID: "541" });
+            const ordem = [];
+            for(let i=0; i<duplas.length; i++) for(let j=i+1; j<duplas.length; j++) ordem.push({i,j,key:`jg_${i}_${j}`});
+            set(ref(db, 'campeonato/'), { duplas, placares: {}, ordemJogos: ordem.sort(()=>Math.random()-0.5) });
+        };
     </script>
 </body>
 </html>

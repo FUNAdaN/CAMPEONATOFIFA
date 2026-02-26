@@ -24,7 +24,22 @@
         
         .logo-img { width: 20px; height: 20px; object-fit: contain; vertical-align: middle; }
         .logo-mata { width: 35px; height: 35px; object-fit: contain; }
-        .score-input { width: 45px !important; height: 38px; text-align: center; color: var(--gold); font-weight: bold; font-size: 1.1em; background: #000; border: 1px solid #444; border-radius: 6px; }
+        
+        /* Placares Otimizados */
+        .score-input { 
+            width: 50px !important; 
+            height: 45px; 
+            text-align: center; 
+            color: var(--gold); 
+            font-weight: bold; 
+            font-size: 1.4em; 
+            background: #000; 
+            border: 2px solid #444; 
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+        .score-input:focus { border-color: var(--gold); outline: none; }
+        .score-input::-webkit-inner-spin-button, .score-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         
         .jogos-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; }
         .jogo { background: var(--panel); padding: 12px; border-radius: 12px; border: 1px solid #333; margin-bottom: 10px; }
@@ -86,7 +101,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, update, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // CONFIGURAÇÃO DO FIREBASE (MANTENHA A SUA)
         const firebaseConfig = {
             apiKey: "SUA_API_KEY",
             databaseURL: "https://torneiodosguri-default-rtdb.firebaseio.com",
@@ -98,6 +112,7 @@
         const timesFC25 = { "Real Madrid": "541", "Man. City": "50", "Liverpool": "40", "Barcelona": "529", "Bayern": "157", "Arsenal": "42", "Inter": "505", "Leverkusen": "168", "PSG": "85", "Atlético": "530", "Dortmund": "165", "Juventus": "496", "Milan": "489", "Chelsea": "49", "Benfica": "190", "Porto": "192", "Napoli": "492", "Roma": "497", "Aston Villa": "66", "Tottenham": "47", "França": "2", "Argentina": "26", "Inglaterra": "10", "Espanha": "5", "Portugal": "27", "Alemanha": "9", "Brasil": "6" };
         
         let localData = { duplas: [], placares: {}, ordemJogos: [] };
+        const travaInput = `type="number" inputmode="numeric" min="0" max="99" oninput="if(value>99)value=99;if(value<0)value=0"`;
 
         window.openTab = (id) => {
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
@@ -123,7 +138,6 @@
         };
         window.renderCamposConfig();
 
-        // Gerar ordem aleatória sem repetição seguida
         function gerarJogosInteligentes(duplas) {
             let jogos = [];
             for (let i = 0; i < duplas.length; i++) {
@@ -193,15 +207,15 @@
             document.getElementById('container-jogos').innerHTML = ordemJogos.map((jogo, idx) => {
                 const p = placares[jogo.key] || { g1: 0, g2: 0, f: false };
                 const t1 = duplas[jogo.i], t2 = duplas[jogo.j];
-                return `<div class="jogo"><div style="font-size:0.6em; color:#666; margin-bottom:5px">JOGO ${idx+1}</div><div class="match-row"><div class="team-display flex-end">${t1.nome} <img class="logo-img" src="https://media.api-sports.io/football/teams/${t1.timeID}.png"></div><input type="number" class="score-input" value="${p.g1}" id="i1-${jogo.key}"> X <input type="number" class="score-input" value="${p.g2}" id="i2-${jogo.key}"><div class="team-display"><img class="logo-img" src="https://media.api-sports.io/football/teams/${t2.timeID}.png"> ${t2.nome}</div></div><button class="btn-ok" style="background:${p.f?'#1e2533':''}" onclick="window.salvarP('${jogo.key}')">${p.f?'ATUALIZAR':'SALVAR RESULTADO'}</button></div>`;
+                return `<div class="jogo"><div style="font-size:0.6em; color:#666; margin-bottom:5px">JOGO ${idx+1}</div><div class="match-row"><div class="team-display flex-end">${t1.nome} <img class="logo-img" src="https://media.api-sports.io/football/teams/${t1.timeID}.png"></div><input ${travaInput} class="score-input" value="${p.g1}" id="i1-${jogo.key}"> X <input ${travaInput} class="score-input" value="${p.g2}" id="i2-${jogo.key}"><div class="team-display"><img class="logo-img" src="https://media.api-sports.io/football/teams/${t2.timeID}.png"> ${t2.nome}</div></div><button class="btn-ok" style="background:${p.f?'#1e2533':''}" onclick="window.salvarP('${jogo.key}')">${p.f?'ATUALIZAR':'SALVAR RESULTADO'}</button></div>`;
             }).join('');
             
             renderMataMata(ordenados);
         }
 
         window.salvarP = (key) => {
-            const g1 = parseInt(document.getElementById(`i1-${key}`).value) || 0;
-            const g2 = parseInt(document.getElementById(`i2-${key}`).value) || 0;
+            const g1 = Math.min(99, Math.max(0, parseInt(document.getElementById(`i1-${key}`).value) || 0));
+            const g2 = Math.min(99, Math.max(0, parseInt(document.getElementById(`i2-${key}`).value) || 0));
             update(ref(db, `campeonato/placares/${key}`), { g1, g2, f: true });
         };
 
@@ -221,7 +235,6 @@
                     const key = `${fase.prefix}_${i}`;
                     const p = localData.placares[key] || { t1: null, t2: null, g1: 0, g2: 0, f: false };
                     
-                    // Preenchimento automático inicial
                     if (fIdx === 0 && !p.t1 && classificados.length >= fase.qtd * 2) {
                         p.t1 = { n: classificados[i].n, timeID: classificados[i].timeID };
                         p.t2 = { n: classificados[fase.qtd*2-1-i].n, timeID: classificados[fase.qtd*2-1-i].timeID };
@@ -232,7 +245,7 @@
                         <div class="jogo">
                             <div class="match-row">
                                 <div class="team-display flex-end">${p.t1?p.t1.n:'?'}<img class="logo-mata" src="${p.t1?'https://media.api-sports.io/football/teams/'+p.t1.timeID+'.png':''}"></div>
-                                <input type="number" class="score-input" id="g1-${key}" value="${p.g1}"> X <input type="number" class="score-input" id="g2-${key}" value="${p.g2}">
+                                <input ${travaInput} class="score-input" id="g1-${key}" value="${p.g1}"> X <input ${travaInput} class="score-input" id="g2-${key}" value="${p.g2}">
                                 <div class="team-display"><img class="logo-mata" src="${p.t2?'https://media.api-sports.io/football/teams/'+p.t2.timeID+'.png':''}">${p.t2?p.t2.n:'?'}</div>
                             </div>
                             <button class="btn-ok" onclick="window.avancar('${key}', '${fases[fIdx+1]?.prefix || 'campeao'}', ${i})">${p.f?'ATUALIZAR':'AVANÇAR'}</button>
@@ -242,8 +255,8 @@
         }
 
         window.avancar = (key, proxFase, index) => {
-            const g1 = parseInt(document.getElementById(`g1-${key}`).value) || 0;
-            const g2 = parseInt(document.getElementById(`g2-${key}`).value) || 0;
+            const g1 = Math.min(99, Math.max(0, parseInt(document.getElementById(`g1-${key}`).value) || 0));
+            const g2 = Math.min(99, Math.max(0, parseInt(document.getElementById(`g2-${key}`).value) || 0));
             if(g1 === g2) { alert("Empate não permitido no Mata-Mata!"); return; }
             
             const matchData = localData.placares[key];

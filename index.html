@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FC25 Guri Pro - Elite Realtime</title>
+    <title>FC25 Pro - Elite Realtime</title>
     <style>
         :root { --gold: #f3ad0e; --dark: #05070a; --panel: #11151f; --accent: #1e2533; --green: #27ae60; --red: #e74c3c; --text-dim: #888; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        /* Menu de Abas */
         .tabs { display: flex; gap: 5px; width: 100%; max-width: 600px; position: sticky; top: 0; z-index: 100; background: var(--dark); padding: 10px 0; }
         .tab-btn { background: var(--panel); color: #888; border: 1px solid #333; padding: 12px 5px; cursor: pointer; border-radius: 8px; font-weight: bold; font-size: 0.7em; flex: 1; text-align: center; }
         .tab-btn.active { background: var(--gold); color: black; border-color: var(--gold); }
@@ -17,7 +16,6 @@
         .content-section { display: none; width: 100%; max-width: 600px; flex-direction: column; align-items: center; }
         .content-section.active { display: flex; }
 
-        /* Cards e Tabelas */
         .card { background: var(--panel); border-radius: 12px; width: 100%; border: 1px solid #333; margin-bottom: 20px; padding: 15px; }
         .table-wrapper { width: 100%; overflow-x: auto; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px;}
         table { border-collapse: collapse; width: 100%; background: #0d1117; min-width: 450px; }
@@ -26,7 +24,6 @@
         
         .logo-img { width: 22px; height: 22px; object-fit: contain; vertical-align: middle; }
 
-        /* Inputs de Placar */
         .score-input { 
             width: 50px !important; height: 45px; text-align: center; color: var(--gold); font-weight: bold; 
             font-size: 1.4em; background: #000; border: 2px solid #444; border-radius: 8px;
@@ -34,25 +31,17 @@
         }
         .score-input::-webkit-outer-spin-button, .score-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
-        /* Configuração de Participantes - NOVA UI */
         .config-card { background: var(--accent); padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #333; }
         .config-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; color: var(--gold); font-weight: bold; font-size: 0.9em; }
         .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .input-group { display: flex; flex-direction: column; gap: 5px; }
         .input-group label { font-size: 0.65em; color: var(--text-dim); text-transform: uppercase; font-weight: bold; }
         
-        select, input[type="text"] { 
-            background: #000; border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; font-size: 0.9em; width: 100%;
-        }
+        select, input[type="text"] { background: #000; border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; font-size: 0.9em; width: 100%; }
         select:focus, input[type="text"]:focus { border-color: var(--gold); outline: none; }
 
-        /* Botões */
         .btn-ok { background: var(--green); border: none; color: white; padding: 10px; border-radius: 6px; width: 100%; font-weight: bold; margin-top: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.75em; }
-        .btn-danger { 
-            background: linear-gradient(to right, #c0392b, #e74c3c); color: white; border: none; padding: 18px; 
-            border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
-        }
+        .btn-danger { background: linear-gradient(to right, #c0392b, #e74c3c); color: white; border: none; padding: 18px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
 
         .jogos-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; }
         .jogo { background: var(--panel); padding: 12px; border-radius: 12px; border: 1px solid #333; margin-bottom: 10px; }
@@ -74,7 +63,7 @@
         <div class="table-wrapper">
             <table>
                 <thead>
-                    <tr><th>Pos</th><th style="text-align:left; padding-left:10px;">Guri</th><th>P</th><th>J</th><th>V</th><th>GP</th><th>GC</th><th>SG</th></tr>
+                    <tr><th>Pos</th><th style="text-align:left; padding-left:10px;">Jogador</th><th>P</th><th>J</th><th>V</th><th>GP</th><th>GC</th><th>SG</th></tr>
                 </thead>
                 <tbody id="corpo-tabela"></tbody>
             </table>
@@ -91,15 +80,11 @@
     <div id="aba-config" class="content-section">
         <div class="card">
             <h3 style="text-align: center; color: var(--gold); margin-top:0;">🏆 CONFIGURAR TORNEIO</h3>
-            
             <div class="input-group" style="margin-bottom: 20px;">
                 <label>Número de Jogadores</label>
-                <select id="qtd-times" onchange="window.renderCamposConfig()" style="border-color: var(--gold); border-width: 2px;">
-                </select>
+                <select id="qtd-times" onchange="window.renderCamposConfig()" style="border-color: var(--gold); border-width: 2px;"></select>
             </div>
-
             <div id="lista-config"></div>
-
             <button class="btn-danger" id="btn-iniciar">🔥 RESETAR E GERAR TABELA</button>
             <p style="font-size: 0.6em; color: var(--text-dim); text-align: center; margin-top: 10px;">Atenção: Isso apagará todos os dados atuais.</p>
         </div>
@@ -133,15 +118,13 @@
             document.getElementById('btn-' + id).classList.add('active');
         };
 
-        // Popular select de quantidade
         const selQtd = document.getElementById('qtd-times');
         for(let i=2; i<=20; i++) {
-            let opt = document.createElement('option'); opt.value = i; opt.text = i + " Guris";
+            let opt = document.createElement('option'); opt.value = i; opt.text = i + " Jogadores";
             if(i === 8) opt.selected = true;
             selQtd.appendChild(opt);
         }
 
-        // Renderizar campos de configuração melhorados
         window.renderCamposConfig = () => {
             const qtd = parseInt(selQtd.value);
             const container = document.getElementById('lista-config');
@@ -151,17 +134,15 @@
             for(let i=0; i<qtd; i++) {
                 container.innerHTML += `
                     <div class="config-card">
-                        <div class="config-header">👤 GURI ${i+1}</div>
+                        <div class="config-header">👤 JOGADOR ${i+1}</div>
                         <div class="config-grid">
                             <div class="input-group">
                                 <label>Nome do Jogador</label>
-                                <input type="text" id="nome-${i}" placeholder="Ex: Guri ${i+1}">
+                                <input type="text" id="nome-${i}" placeholder="Ex: Jogador ${i+1}">
                             </div>
                             <div class="input-group">
                                 <label>Time no FC25</label>
-                                <select id="time-${i}">
-                                    ${optionsTimes}
-                                </select>
+                                <select id="time-${i}">${optionsTimes}</select>
                             </div>
                         </div>
                     </div>`;
@@ -169,14 +150,13 @@
         };
         window.renderCamposConfig();
 
-        // Iniciar Campeonato
         document.getElementById('btn-iniciar').onclick = () => {
             if(!confirm("Isso apagará todo o progresso. Confirmar?")) return;
             const qtd = parseInt(selQtd.value);
             const duplas = [];
             for(let i=0; i<qtd; i++){
                 const t = document.getElementById(`time-${i}`).value;
-                duplas.push({ nome: document.getElementById(`nome-${i}`).value || `Guri ${i+1}`, timeID: timesFC25[t] });
+                duplas.push({ nome: document.getElementById(`nome-${i}`).value || `Jogador ${i+1}`, timeID: timesFC25[t] });
             }
             let jogos = [];
             for (let i = 0; i < duplas.length; i++) {
@@ -189,7 +169,6 @@
             window.openTab('aba-grupo');
         };
 
-        // Escutar Firebase
         onValue(ref(db, 'campeonato/'), (snap) => {
             const data = snap.val();
             if(!data) return;
@@ -201,7 +180,6 @@
             const { duplas, placares = {}, ordemJogos = [] } = localData;
             const stats = {};
             duplas.forEach(d => stats[d.nome] = { pontos: 0, v: 0, gp: 0, gc: 0, sg: 0, j: 0, timeID: d.timeID });
-
             ordemJogos.forEach(jogo => {
                 const p = placares[jogo.key];
                 if(p && p.f) {
@@ -217,20 +195,16 @@
                     stats[n2].sg = stats[n2].gp - stats[n2].gc;
                 }
             });
-
             const ordenados = Object.keys(stats).map(n => ({ n, ...stats[n] })).sort((a,b) => b.pontos - a.pontos || b.sg - a.sg || b.gp - a.gp);
-
             document.getElementById('corpo-tabela').innerHTML = ordenados.map((t, i) => `
                 <tr><td>${i+1}º</td><td style="text-align:left; padding-left:10px;"><img class="logo-img" src="https://media.api-sports.io/football/teams/${t.timeID}.png"> ${t.n}</td>
                 <td style="color:var(--gold); font-weight:bold">${t.pontos}</td><td>${t.j}</td><td>${t.v}</td><td>${t.gp}</td><td>${t.gc}</td>
                 <td style="font-weight:bold; color:${t.sg > 0 ? '#27ae60' : t.sg < 0 ? '#e74c3c' : 'white'}">${t.sg}</td></tr>`).join('');
-
             document.getElementById('container-jogos').innerHTML = ordemJogos.map((jogo, idx) => {
                 const p = placares[jogo.key] || { g1: 0, g2: 0, f: false };
                 const t1 = duplas[jogo.i], t2 = duplas[jogo.j];
                 return `<div class="jogo"><div style="font-size:0.6em; color:#666; margin-bottom:5px">JOGO ${idx+1}</div><div class="match-row"><div class="team-display flex-end">${t1.nome} <img class="logo-img" src="https://media.api-sports.io/football/teams/${t1.timeID}.png"></div><input ${travaInput} class="score-input" value="${p.g1}" id="i1-${jogo.key}"> X <input ${travaInput} class="score-input" value="${p.g2}" id="i2-${jogo.key}"><div class="team-display"><img class="logo-img" src="https://media.api-sports.io/football/teams/${t2.timeID}.png"> ${t2.nome}</div></div><button class="btn-ok" style="background:${p.f?'#1e2533':''}" onclick="window.salvarP('${jogo.key}')">${p.f?'ATUALIZAR':'SALVAR RESULTADO'}</button></div>`;
             }).join('');
-            
             renderMataMata(ordenados);
         }
 
@@ -242,13 +216,11 @@
 
         function renderMataMata(classificados) {
             const container = document.getElementById('mata-mata-container');
-            const total = classificados.length;
-            container.innerHTML = "";
+            const total = classificados.length; container.innerHTML = "";
             const fases = [];
             if (total > 8) fases.push({ nome: "Quartas", qtd: 4, prefix: "quarta" });
             fases.push({ nome: "Semifinais", qtd: 2, prefix: "semi" });
             fases.push({ nome: "Grande Final", qtd: 1, prefix: "final" });
-
             fases.forEach((fase, fIdx) => {
                 container.innerHTML += `<div class="fase-titulo" style="color:var(--gold); text-align:center; margin-top:20px; text-transform:uppercase; font-size:0.8em; letter-spacing:2px; border-bottom:1px solid #333; padding-bottom:5px">${fase.nome}</div>`;
                 for (let i = 0; i < fase.qtd; i++) {
@@ -268,8 +240,7 @@
             const g1 = Math.min(99, Math.max(0, parseInt(document.getElementById(`g1-${key}`).value) || 0));
             const g2 = Math.min(99, Math.max(0, parseInt(document.getElementById(`g2-${key}`).value) || 0));
             if(g1 === g2) { alert("Empate não permitido!"); return; }
-            const matchData = localData.placares[key];
-            if(!matchData || !matchData.t1 || !matchData.t2) return;
+            const matchData = localData.placares[key]; if(!matchData || !matchData.t1 || !matchData.t2) return;
             const vencedor = g1 > g2 ? matchData.t1 : matchData.t2;
             const updates = {};
             updates[`campeonato/placares/${key}/g1`] = g1; updates[`campeonato/placares/${key}/g2`] = g2; updates[`campeonato/placares/${key}/f`] = true;

@@ -25,7 +25,7 @@
         .logo-img { width: 20px; height: 20px; object-fit: contain; vertical-align: middle; }
         .logo-mata { width: 35px; height: 35px; object-fit: contain; }
         
-        /* Placares Otimizados */
+        /* Placares Otimizados e sem setas */
         .score-input { 
             width: 50px !important; 
             height: 45px; 
@@ -37,9 +37,12 @@
             border: 2px solid #444; 
             border-radius: 8px;
             transition: border-color 0.3s;
+            -moz-appearance: textfield;
+            appearance: textfield;
         }
         .score-input:focus { border-color: var(--gold); outline: none; }
-        .score-input::-webkit-inner-spin-button, .score-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .score-input::-webkit-outer-spin-button, 
+        .score-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         
         .jogos-grid { display: flex; flex-direction: column; gap: 10px; width: 100%; }
         .jogo { background: var(--panel); padding: 12px; border-radius: 12px; border: 1px solid #333; margin-bottom: 10px; }
@@ -101,12 +104,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, update, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "SUA_API_KEY",
-            databaseURL: "https://torneiodosguri-default-rtdb.firebaseio.com",
-            projectId: "torneiodosguri"
-        };
-
+        const firebaseConfig = { apiKey: "SUA_API_KEY", databaseURL: "https://torneiodosguri-default-rtdb.firebaseio.com", projectId: "torneiodosguri" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const timesFC25 = { "Real Madrid": "541", "Man. City": "50", "Liverpool": "40", "Barcelona": "529", "Bayern": "157", "Arsenal": "42", "Inter": "505", "Leverkusen": "168", "PSG": "85", "Atlético": "530", "Dortmund": "165", "Juventus": "496", "Milan": "489", "Chelsea": "49", "Benfica": "190", "Porto": "192", "Napoli": "492", "Roma": "497", "Aston Villa": "66", "Tottenham": "47", "França": "2", "Argentina": "26", "Inglaterra": "10", "Espanha": "5", "Portugal": "27", "Alemanha": "9", "Brasil": "6" };

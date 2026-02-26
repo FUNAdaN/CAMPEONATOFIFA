@@ -18,16 +18,14 @@
 
         .card { background: var(--panel); border-radius: 12px; width: 100%; border: 1px solid #333; margin-bottom: 20px; padding: 15px; }
         
-        /* Tabela Otimizada */
         .table-wrapper { width: 100%; overflow-x: auto; border-radius: 10px; border: 1px solid #333; margin-bottom: 20px;}
-        table { border-collapse: collapse; width: 100%; background: #0d1117; min-width: 400px; }
+        table { border-collapse: collapse; width: 100%; background: #0d1117; min-width: 450px; }
         th, td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #222; font-size: 0.75em; }
         th { background: var(--accent); color: var(--gold); text-transform: uppercase; font-size: 0.65em; }
         
         .logo-img { width: 20px; height: 20px; object-fit: contain; vertical-align: middle; }
         .logo-mata { width: 35px; height: 35px; object-fit: contain; }
         
-        /* Placares sem setas */
         .score-input { 
             width: 50px !important; height: 45px; text-align: center; color: var(--gold); font-weight: bold; 
             font-size: 1.4em; background: #000; border: 2px solid #444; border-radius: 8px;
@@ -43,11 +41,8 @@
         .team-display { flex: 1; display: flex; align-items: center; font-size: 0.85em; font-weight: bold; gap: 8px; overflow: hidden; }
         .flex-end { justify-content: flex-end; text-align: right; }
 
-        .fase-titulo { color: var(--gold); text-align: center; font-size: 0.9em; margin: 25px 0 10px 0; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #333; padding-bottom: 5px; width: 100%; font-weight: bold;}
         .btn-ok { background: var(--green); border: none; color: white; padding: 10px; border-radius: 6px; width: 100%; font-weight: bold; margin-top: 8px; cursor: pointer; text-transform: uppercase; font-size: 0.75em; }
         .btn-danger { background: var(--red); color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 20px; }
-        
-        .config-row { display: grid; grid-template-columns: 1fr 1.5fr; gap: 8px; margin-bottom: 10px; }
         input, select { background: #000; border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; width: 100%; }
     </style>
 </head>
@@ -108,9 +103,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, update, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // CONFIGURAÇÃO DO FIREBASE (Coloque seus dados aqui)
         const firebaseConfig = { apiKey: "SUA_API_KEY", databaseURL: "https://torneiodosguri-default-rtdb.firebaseio.com", projectId: "torneiodosguri" };
-        
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const timesFC25 = { "Real Madrid": "541", "Man. City": "50", "Liverpool": "40", "Barcelona": "529", "Bayern": "157", "Arsenal": "42", "Inter": "505", "Leverkusen": "168", "PSG": "85", "Atlético": "530", "Dortmund": "165", "Juventus": "496", "Milan": "489", "Chelsea": "49", "Benfica": "190", "Porto": "192", "Napoli": "492", "Roma": "497", "Aston Villa": "66", "Tottenham": "47", "França": "2", "Argentina": "26", "Inglaterra": "10", "Espanha": "5", "Portugal": "27", "Alemanha": "9", "Brasil": "6" };
@@ -142,27 +135,6 @@
         };
         window.renderCamposConfig();
 
-        function gerarJogosInteligentes(duplas) {
-            let jogos = [];
-            for (let i = 0; i < duplas.length; i++) {
-                for (let j = i + 1; j < duplas.length; j++) {
-                    jogos.push({ i, j, key: `jg_${i}_${j}` });
-                }
-            }
-            jogos.sort(() => Math.random() - 0.5);
-            const final = [];
-            while(jogos.length > 0) {
-                let idx = 0;
-                if(final.length > 0) {
-                    const ult = final[final.length-1];
-                    idx = jogos.findIndex(p => p.i !== ult.i && p.i !== ult.j && p.j !== ult.i && p.j !== ult.j);
-                    if(idx === -1) idx = 0;
-                }
-                final.push(jogos.splice(idx, 1)[0]);
-            }
-            return final;
-        }
-
         document.getElementById('btn-iniciar').onclick = () => {
             if(!confirm("Isso apagará todo o progresso atual. Confirmar?")) return;
             const qtd = parseInt(selQtd.value);
@@ -171,8 +143,15 @@
                 const t = document.getElementById(`time-${i}`).value;
                 duplas.push({ nome: document.getElementById(`nome-${i}`).value || `Guri ${i+1}`, timeID: timesFC25[t] });
             }
-            const ordem = gerarJogosInteligentes(duplas);
-            set(ref(db, 'campeonato/'), { duplas, placares: {}, ordemJogos: ordem });
+            // Gerar jogos
+            let jogos = [];
+            for (let i = 0; i < duplas.length; i++) {
+                for (let j = i + 1; j < duplas.length; j++) {
+                    jogos.push({ i, j, key: `jg_${i}_${j}` });
+                }
+            }
+            jogos.sort(() => Math.random() - 0.5);
+            set(ref(db, 'campeonato/'), { duplas, placares: {}, ordemJogos: jogos });
             window.openTab('aba-grupo');
         };
 
@@ -186,24 +165,39 @@
         function atualizarTudo() {
             const { duplas, placares = {}, ordemJogos = [] } = localData;
             const stats = {};
-            duplas.forEach(d => stats[d.nome] = { pontos: 0, v: 0, gp: 0, gc: 0, sg: 0, j: 0, timeID: d.timeID });
+            
+            // Inicializa stats para cada Guri
+            duplas.forEach(d => {
+                stats[d.nome] = { pontos: 0, v: 0, gp: 0, gc: 0, sg: 0, j: 0, timeID: d.timeID };
+            });
 
+            // Processa placares dos jogos de grupo
             ordemJogos.forEach(jogo => {
                 const p = placares[jogo.key];
-                if(p && p.f) {
-                    const n1 = duplas[jogo.i].nome, n2 = duplas[jogo.j].nome;
+                if(p && p.f) { // Se o jogo estiver finalizado
+                    const n1 = duplas[jogo.i].nome;
+                    const n2 = duplas[jogo.j].nome;
+                    const g1 = parseInt(p.g1) || 0;
+                    const g2 = parseInt(p.g2) || 0;
+
                     stats[n1].j++; stats[n2].j++;
-                    stats[n1].gp += p.g1; stats[n1].gc += p.g2;
-                    stats[n2].gp += p.g2; stats[n2].gc += p.g1;
-                    if(p.g1 > p.g2) { stats[n1].pontos += 3; stats[n1].v++; }
-                    else if(p.g2 > p.g1) { stats[n2].pontos += 3; stats[n2].v++; }
-                    else { stats[n1].pontos++; stats[n2].pontos++; }
+                    stats[n1].gp += g1; stats[n1].gc += g2;
+                    stats[n2].gp += g2; stats[n2].gc += g1;
+
+                    if(g1 > g2) { stats[n1].pontos += 3; stats[n1].v++; }
+                    else if(g2 > g1) { stats[n2].pontos += 3; stats[n2].v++; }
+                    else { stats[n1].pontos += 1; stats[n2].pontos += 1; }
+
                     stats[n1].sg = stats[n1].gp - stats[n1].gc;
                     stats[n2].sg = stats[n2].gp - stats[n2].gc;
                 }
             });
 
-            const ordenados = Object.keys(stats).map(n => ({ n, ...stats[n] })).sort((a,b) => b.pontos - a.pontos || b.sg - a.sg || b.gp - a.gp);
+            // Ordena tabela
+            const ordenados = Object.keys(stats).map(n => ({ n, ...stats[n] }))
+                .sort((a,b) => b.pontos - a.pontos || b.sg - a.sg || b.gp - a.gp);
+
+            // Renderiza Tabela
             document.getElementById('corpo-tabela').innerHTML = ordenados.map((t, i) => `
                 <tr>
                     <td>${i+1}º</td>
@@ -216,10 +210,22 @@
                     <td style="font-weight:bold; color:${t.sg > 0 ? '#27ae60' : t.sg < 0 ? '#e74c3c' : 'white'}">${t.sg}</td>
                 </tr>`).join('');
 
+            // Renderiza Jogos
             document.getElementById('container-jogos').innerHTML = ordemJogos.map((jogo, idx) => {
                 const p = placares[jogo.key] || { g1: 0, g2: 0, f: false };
                 const t1 = duplas[jogo.i], t2 = duplas[jogo.j];
-                return `<div class="jogo"><div style="font-size:0.6em; color:#666; margin-bottom:5px">JOGO ${idx+1}</div><div class="match-row"><div class="team-display flex-end">${t1.nome} <img class="logo-img" src="https://media.api-sports.io/football/teams/${t1.timeID}.png"></div><input ${travaInput} class="score-input" value="${p.g1}" id="i1-${jogo.key}"> X <input ${travaInput} class="score-input" value="${p.g2}" id="i2-${jogo.key}"><div class="team-display"><img class="logo-img" src="https://media.api-sports.io/football/teams/${t2.timeID}.png"> ${t2.nome}</div></div><button class="btn-ok" style="background:${p.f?'#1e2533':''}" onclick="window.salvarP('${jogo.key}')">${p.f?'ATUALIZAR':'SALVAR RESULTADO'}</button></div>`;
+                return `
+                <div class="jogo">
+                    <div style="font-size:0.6em; color:#666; margin-bottom:5px">JOGO ${idx+1}</div>
+                    <div class="match-row">
+                        <div class="team-display flex-end">${t1.nome} <img class="logo-img" src="https://media.api-sports.io/football/teams/${t1.timeID}.png"></div>
+                        <input ${travaInput} class="score-input" value="${p.g1}" id="i1-${jogo.key}">
+                        X
+                        <input ${travaInput} class="score-input" value="${p.g2}" id="i2-${jogo.key}">
+                        <div class="team-display"><img class="logo-img" src="https://media.api-sports.io/football/teams/${t2.timeID}.png"> ${t2.nome}</div>
+                    </div>
+                    <button class="btn-ok" style="background:${p.f?'#1e2533':''}" onclick="window.salvarP('${jogo.key}')">${p.f?'ATUALIZAR':'SALVAR RESULTADO'}</button>
+                </div>`;
             }).join('');
             
             renderMataMata(ordenados);
@@ -236,13 +242,13 @@
             const total = classificados.length;
             container.innerHTML = "";
             const fases = [];
-            if (total > 16) fases.push({ nome: "Oitavas de Final", qtd: 8, prefix: "oitava" });
-            if (total > 8) fases.push({ nome: "Quartas de Final", qtd: 4, prefix: "quarta" });
+            if (total > 16) fases.push({ nome: "Oitavas", qtd: 8, prefix: "oitava" });
+            if (total > 8) fases.push({ nome: "Quartas", qtd: 4, prefix: "quarta" });
             fases.push({ nome: "Semifinais", qtd: 2, prefix: "semi" });
             fases.push({ nome: "Grande Final", qtd: 1, prefix: "final" });
 
             fases.forEach((fase, fIdx) => {
-                container.innerHTML += `<div class="fase-titulo">${fase.nome}</div>`;
+                container.innerHTML += `<div class="fase-titulo" style="color:var(--gold); text-align:center; margin-top:20px; text-transform:uppercase; font-size:0.8em; letter-spacing:2px; border-bottom:1px solid #333; padding-bottom:5px">${fase.nome}</div>`;
                 for (let i = 0; i < fase.qtd; i++) {
                     const key = `${fase.prefix}_${i}`;
                     const p = localData.placares[key] || { t1: null, t2: null, g1: 0, g2: 0, f: false };
@@ -270,16 +276,13 @@
             const g1 = Math.min(99, Math.max(0, parseInt(document.getElementById(`g1-${key}`).value) || 0));
             const g2 = Math.min(99, Math.max(0, parseInt(document.getElementById(`g2-${key}`).value) || 0));
             if(g1 === g2) { alert("Empate não permitido no Mata-Mata!"); return; }
-            
             const matchData = localData.placares[key];
-            if(!matchData || !matchData.t1 || !matchData.t2) { alert("Aguardando times!"); return; }
-            
+            if(!matchData || !matchData.t1 || !matchData.t2) return;
             const vencedor = g1 > g2 ? matchData.t1 : matchData.t2;
             const updates = {};
             updates[`campeonato/placares/${key}/g1`] = g1;
             updates[`campeonato/placares/${key}/g2`] = g2;
             updates[`campeonato/placares/${key}/f`] = true;
-
             if (proxFase === 'campeao') {
                 update(ref(db), updates);
                 push(ref(db, 'hall/'), { nome: vencedor.n, timeID: vencedor.timeID, data: new Date().toLocaleDateString() });
